@@ -1,0 +1,18 @@
+{
+  "name": "Cockpit Desktop",
+  "description": "View your desktop from your cockpit's MFD's!",
+  "dll_file": "CockpitDesktop.dll",
+  "last_edit": 638014623398280380,
+  "pub_id": "",
+  "json_version": "",
+  "version": "",
+  "tagline": "",
+  "repository": "",
+  "is_public": false,
+  "unlisted": false,
+  "preview_image": "",
+  "web_preview_image": "",
+  "dependencies": null,
+  "mod_dependencies": null,
+  "ContentType": 3
+}

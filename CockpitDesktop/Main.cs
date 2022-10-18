@@ -17,6 +17,8 @@ namespace CockpitDesktop
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr GetModuleHandle([MarshalAs(UnmanagedType.LPWStr)] string lpModuleName);
 
+        public static Main instance;
+
         // Harmony ID for harmony patches
         private const string __harmonyID = "vimodev.cockpitdesktop";
 
@@ -30,9 +32,9 @@ namespace CockpitDesktop
         // Called when mod is first loaded
         public override void ModLoaded()
         {
-            // Load uDesktopDuplication dll and assets
+            Main.instance = this;
+            // Load uDesktopDuplication dll
             LoadDll();
-            AssetBundle bundle = LoadAssetBundle();
             // Patch the game
             HarmonyInstance instance = HarmonyInstance.Create(__harmonyID);
             instance.PatchAll(Assembly.GetExecutingAssembly());
@@ -111,14 +113,5 @@ namespace CockpitDesktop
             }
         }
 
-        public AssetBundle LoadAssetBundle()
-        {
-            string folder = this.ModFolder;
-            folder = Path.Combine(folder, "uDesktopDuplication");
-            Log("Loading asset bundle from folder: " + folder);
-            AssetBundle assetBundle = AssetBundle.LoadFromFile(Path.Combine(folder, "desktop"));
-            if (assetBundle == null) Log("Failed to load asset bundle.");
-            return assetBundle;
-        }
     }
 }

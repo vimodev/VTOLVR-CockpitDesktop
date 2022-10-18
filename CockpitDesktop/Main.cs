@@ -26,16 +26,13 @@ namespace CockpitDesktop
         public static GameObject mfdDesktop;
         // uDesktopDuplication texture containing desktop
         public static uDesktopDuplication.Texture texture;
-        // Was the camera active previous frame?
-        public static bool cameraActivePrev = false;
 
         // Called when mod is first loaded
         public override void ModLoaded()
         {
             Main.instance = this;
-            // Load uDesktopDuplication dll
             LoadDll();
-            // Patch the game
+            // Patch the game if necessary
             HarmonyInstance instance = HarmonyInstance.Create(__harmonyID);
             instance.PatchAll(Assembly.GetExecutingAssembly());
             VTOLAPI.SceneLoaded += SceneLoaded;
@@ -45,7 +42,6 @@ namespace CockpitDesktop
         // Every frame
         void Update()
         {
-            
             // Update the MFD desktop displayer
             UpdateMFD();
         }
@@ -53,35 +49,38 @@ namespace CockpitDesktop
         // Update the MFD display of the desktop
         void UpdateMFD()
         {
-            
             if (ExternalCamManager.instance == null) return;
             List<Camera> cameras = ExternalCamManager.instance.cameras;
             if (cameras.Count == 0) return;
-            if (cameras[0].gameObject.activeSelf)
+            for (int i = 0; i < cameras.Count; i++)
             {
-                if (!cameraActivePrev) CreateMFDDesktop();
-                cameraActivePrev = true;
-                cameras[0].targetTexture.Release();
-                cameras[0].targetTexture.enableRandomWrite = true;
-                Graphics.Blit(texture.material.mainTexture, cameras[0].targetTexture, new Vector2(1, -1), Vector2.zero);
-                cameras[0].targetTexture.Create();
-            } else if (cameraActivePrev)
-            {
-                DestroyMFDDesktop();
-                cameraActivePrev = false;
+                if (i >= uDesktopDuplication.Manager.monitorCount) break;
+                if (cameras[i].gameObject.activeSelf)
+                {
+                    texture.monitorId = i;
+                    cameras[i].targetTexture.Release();
+                    cameras[i].targetTexture.enableRandomWrite = true;
+                    Graphics.Blit(texture.material.mainTexture, cameras[i].targetTexture, new Vector2(1, -1), Vector2.zero);
+                    cameras[i].targetTexture.Create();
+                }
             }
         }
 
+        // On scene load, destroy and recreate the screen
         private void SceneLoaded(VTOLScenes scene)
         {
+            DestroyMFDDesktop();
+            CreateMFDDesktop();
         }
 
+        // Destroy the screen
         public void DestroyMFDDesktop()
         {
             if (mfdDesktop != null) Destroy(mfdDesktop);
             mfdDesktop = null; texture = null;
         }
 
+        // Create the screen
         public void CreateMFDDesktop()
         {
             DestroyMFDDesktop();
@@ -94,6 +93,7 @@ namespace CockpitDesktop
             mfdDesktop.transform.position = new Vector3(0, -1000, 0);
         }
 
+        // Load the uDesktopDuplication dll
         public void LoadDll()
         {
             string folder = this.ModFolder;

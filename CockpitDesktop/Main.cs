@@ -49,19 +49,29 @@ namespace CockpitDesktop
         // Update the MFD display of the desktop
         void UpdateMFD()
         {
+            // Edge cases, skip
             if (ExternalCamManager.instance == null) return;
             List<Camera> cameras = ExternalCamManager.instance.cameras;
             if (cameras.Count == 0) return;
+            // Go over all cameras
+            RenderTexture target = ExternalCamManager.instance.renderTexture;
             for (int i = 0; i < cameras.Count; i++)
             {
+                // As long as there are monitors
                 if (i >= uDesktopDuplication.Manager.monitorCount) break;
+                // If the camera is active, we render the screen over the camera
                 if (cameras[i].gameObject.activeSelf)
                 {
                     texture.monitorId = i;
-                    cameras[i].targetTexture.Release();
-                    cameras[i].targetTexture.enableRandomWrite = true;
-                    Graphics.Blit(texture.material.mainTexture, cameras[i].targetTexture, new Vector2(1, -1), Vector2.zero);
-                    cameras[i].targetTexture.Create();
+                    // Write over the camera's target texture
+                    target.Release();
+                    target.width = texture.material.mainTexture.width;
+                    target.height = texture.material.mainTexture.height;
+                    target.enableRandomWrite = true;
+                    Graphics.Blit(texture.material.mainTexture, target, new Vector2(1, -1), Vector2.zero);
+                    // Finalize the texture
+                    target.Create();
+                    break;
                 }
             }
         }

@@ -12,7 +12,7 @@
   "unlisted": false,
   "preview_image": "preview.png",
   "web_preview_image": "web_preview.png",
-  "dependencies": null,
+  "dependencies": [],
   "mod_dependencies": null,
   "ContentType": 3
 }
